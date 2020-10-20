@@ -77,8 +77,8 @@ def train_step(model, x, y):
         y_pred, logits = model(x)
         loss = cross_entropy_loss(logits, y)
 
-    gradients = tape.gradient(loss, model.trainable_variable)
-    optimizer.apply_gradients(zip(gradients, model.trainable_variable))
+    gradients = tape.gradient(loss, model.trainable_variables)
+    optimizer.apply_gradients(zip(gradients, model.trainable_variables))
 
 @tf.function
 def compute_accuracy(y_pred, y):
@@ -88,3 +88,15 @@ def compute_accuracy(y_pred, y):
     return accuracy
 
 CNN_model = CNN()
+epoch = 5000
+
+for i in range(epoch):
+    batch_x, batch_y = next(train_data_iter)
+
+    if i % 100 == 0:
+        train_accuracy = compute_accuracy(CNN_model(batch_x)[0], batch_y)
+        print("Epoch: %d, Accuracy: %f" % (i, train_accuracy))
+
+    train_step(CNN_model, batch_x, batch_y)
+
+print("Accuracy: %f" % compute_accuracy(CNN_model(x_test)[0], y_test))
